@@ -1,0 +1,97 @@
+
+.record-list {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+}
+
+.record-list-item {
+  width: 30%;
+  padding: 2%;
+  cursor:pointer;
+  transition-property: background-color;
+  transition-duration: 0.3s;
+  transition-delay: 0.1s;
+  border-radius: 10px;
+}
+
+.record-list-item:hover {
+	background-color:rgba(0,0,0,0.2);
+}
+
+
+li.attendee-current-member::before {
+	content:"Is Member: ";
+}
+
+li.attendee-name::before {
+	content:"Name: ";
+}
+
+li.attendee-order-date::before {
+	content:"Ticket Order Date: ";
+}
+
+li.attendee-ticket-name::before {
+	content:"Ticket Type: ";
+}
+
+li.attendee-city::before {
+	content:"City: ";
+}
+
+li.attendee-state::before {
+	content:"State: ";
+}
+
+li.attendee-address::before {
+	content:"Mailing Address: ";
+}
+
+
+
+.event-list-item {
+	margin-bottom: 25px;
+}
+
+.hiddenButton {
+	display: none;
+}
+.switchButton {
+	width: 10px;
+}
+.fas {
+	font-size: 1.75rem;
+	color: rgb(124,124,124);
+}
+
+
+@media screen and (max-width: 800px) {
+
+	.should-be-invisible {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 800px) {
+
+	.marginMaker {
+		margin-bottom: 5px;
+	}
+	.marginMaker2 {
+		margin-left: 25px;
+		margin-bottom: 5px;
+	}
+
+	li::before {
+		content:"" !important;
+	}
+
+    li.table-cell {
+        padding-right: 20px;
+    }
+
+    ul.table-headers li.table-cell {
+        font-weight: bold;
+    }
+}
