@@ -1,7 +1,11 @@
 /**@jsx vNode */
 
 
+window.sendFiles = sendFiles;
 
+const PERCENTAGE_START = 0;
+const PERCENTAGE_COMPLETE = 100;
+const UPLOAD_URL = "https://appdev.ocdla.org/file/upload";
 
 
 
@@ -9,6 +13,25 @@ domReady(function() {
   const inputElement = document.getElementById("upload");
   inputElement.addEventListener("change", handleFiles, false);
 });
+
+
+
+function sendFiles() {
+  const imgs = document.querySelectorAll(".obj");
+  
+  // const formdata = new FormData(document.getElementById("contact-uploads"));
+
+  for (let i = 0; i < imgs.length; i++) {
+    new FileUpload(imgs[i], imgs[i].file);
+  }
+
+
+}
+
+
+
+
+
 
 
 
@@ -37,23 +60,9 @@ function getPreview(file) {
 }
 
 
-function sendFiles() {
-  const imgs = document.querySelectorAll(".obj");
-  
-  // const formdata = new FormData(document.getElementById("contact-uploads"));
-
-  for (let i = 0; i < imgs.length; i++) {
-    new FileUpload(imgs[i], imgs[i].file);
-  }
 
 
-}
 
-window.sendFiles = sendFiles;
-
-const PERCENTAGE_START = 0;
-const PERCENTAGE_COMPLETE = 100;
-const UPLOAD_URL = "https://appdev.ocdla.org/file/upload";
 
 
 function updateMeter(e) {
