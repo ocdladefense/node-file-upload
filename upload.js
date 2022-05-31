@@ -1,108 +1,156 @@
 /**@jsx vNode */
-
-
-window.sendFiles = sendFiles;
-
-const PERCENTAGE_START = 0;
-const PERCENTAGE_COMPLETE = 100;
-const UPLOAD_URL = "https://appdev.ocdla.org/file/upload";
-
-
-
-domReady(function() {
-  const inputElement = document.getElementById("upload");
+// ../../.bin/babel src.js --out-file upload.js
+import { View, vNode } from "/node_modules/@ocdladefense/view/view.js";
+window.FileUploadService = FileUploadService;
+var PERCENTAGE_START = 0;
+var PERCENTAGE_COMPLETE = 100;
+var UPLOAD_URL = "https://appdev.ocdla.org/file/upload";
+var preview = null;
+domReady(function () {
+  var inputElement = document.getElementById("upload");
   inputElement.addEventListener("change", handleFiles, false);
+  preview = document.getElementById("preview");
 });
 
+var FileUploadService = function () {
+  var endpoint = null;
 
+  function sendFiles() {
+    if (null == endpoint) {
+      throw new Error("HTTP_ERROR: File upload endpoint cannot be empty.");
+    }
 
-function sendFiles() {
-  const imgs = document.querySelectorAll(".obj");
-  
-  // const formdata = new FormData(document.getElementById("contact-uploads"));
+    var imgs = document.querySelectorAll(".obj");
 
-  for (let i = 0; i < imgs.length; i++) {
-    new FileUpload(imgs[i], imgs[i].file);
+    for (var i = 0; i < imgs.length; i++) {
+      new FileUpload(imgs[i], imgs[i].file);
+    }
   }
 
+  function setEndpoint(endpoint) {
+    endpoint = endpoint;
+  }
 
-}
+  function getEndpoint() {
+    return endpoint;
+  }
 
+  return {
+    upload: sendFiles,
+    setEndpoint: setEndpoint
+  };
+}();
 
+var Preview = function () {
+  var DEFAULT_THUMBNAIL = "/node_modules/@ocdladefense/node-file-upload/assets/images/generic-file.png";
 
+  function render() {
+    return vNode("div", {
+      "class": "file-upload-preview"
+    }, vNode("div", {
+      "class": "image-preview"
+    }, vNode("img", {
+      src: this.src,
+      "class": "obj",
+      style: "width:200px; height:auto"
+    })), vNode("div", {
+      "class": "file-name"
+    }, this.filename), vNode("div", {
+      "class": "file-upload-meter"
+    }, vNode("canvas", null)));
+  }
 
+  function update(e) {
+    this.src = e.target.result;
+    var newNode = View.createElement(this.render());
+    this.root.parentNode.replaceChild(newNode, this.root);
+  }
 
+  function setRoot(node) {
+    this.root = node;
+  }
 
+  var prototype = {
+    render: render,
+    setRoot: setRoot,
+    update: update
+  };
 
+  var construct = function construct(props) {
+    this.props = props;
+    this.src = null;
+    this.root = null;
+    var file = props.file;
+    var type = file.type && file.type.split("/")[0] || "unknown";
+
+    if (!["image", "img"].includes(type)) {
+      this.src = DEFAULT_THUMBNAIL;
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = update.bind(this);
+    reader.readAsDataURL(file);
+  };
+
+  construct.prototype = prototype;
+  return construct;
+}();
 
 function handleFiles() {
-  const fileList = this.files; /* now you can work with the file list */
-  const numFiles = fileList.length;
+  var fileList = this.files;
+  /* now you can work with the file list */
+
+  var numFiles = fileList.length;
   console.log(fileList);
-  for (let i = 0, count = fileList.length; i < count; i++) {
-    let f = fileList[i];
+
+  for (var i = 0, count = fileList.length; i < count; i++) {
+    var f = fileList[i];
     console.log([f.name, f.size, f.type].join(" | "));
-    getPreview(f);
-  } 
+    var node = vNode(Preview, {
+      file: f
+    });
+    console.log(node);
+    preview.appendChild(View.createElement(node));
+  }
 }
-
-
-function getPreview(file) {
-  const img = document.createElement("img");
-  img.classList.add("obj");
-  img.style = "width:200px; height:auto";
-  img.file = file;
-  preview.appendChild(img); // Assuming that "preview" is the div output where the content will be displayed.
-
-  const reader = new FileReader();
-  reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; }; })(img);
-  reader.readAsDataURL(file);
-}
-
-
-
-
-
-
 
 function updateMeter(e) {
-  if(e.lengthComputable) {
-    let percentage = Math.round((e.loaded * 100) / e.total);
+  if (e.lengthComputable) {
+    var percentage = Math.round(e.loaded * 100 / e.total);
     this.meter.update(percentage);
   }
 }
 
 function removeMeter(e) {
   this.meter.update(PERCENTAGE_COMPLETE);
-  let canvas = this.meter.ctx.canvas;
+  var canvas = this.meter.ctx.canvas;
   canvas.parentNode.removeChild(canvas);
 }
 
 function FileUpload(img, file) {
   console.log(file);
-  const reader = new FileReader();
-  const xhr = new XMLHttpRequest();
+  var reader = new FileReader();
+  var xhr = new XMLHttpRequest();
   this.meter = createThrobber(img);
   console.log(file);
   xhr.upload.addEventListener("progress", updateMeter.bind(this), false);
   xhr.upload.addEventListener("load", removeMeter.bind(this), false);
-
-  xhr.open("POST", UPLOAD_URL);
-  xhr.setRequestHeader("Content-Disposition", 'attachment; filename="'+file.name+'"');
+  xhr.open("POST", FileUploadService.getEndpoint());
+  xhr.setRequestHeader("Content-Disposition", 'attachment; filename="' + file.name + '"');
   xhr.setRequestHeader("Content-Type", file.type);
 
-  reader.onload = function(evt) {
+  reader.onload = function (evt) {
     xhr.send(evt.target.result);
   };
+
   reader.readAsArrayBuffer(file);
 }
 
-
-
 function createThrobber(img) {
-  const throbberWidth = 64;
-  const throbberHeight = 6;
-  const throbber = document.createElement('canvas');
+  var throbberWidth = 64;
+  var throbberHeight = 6;
+  var throbber = document.createElement('canvas');
   throbber.classList.add('upload-progress');
   throbber.setAttribute('width', throbberWidth);
   throbber.setAttribute('height', throbberHeight);
@@ -110,8 +158,9 @@ function createThrobber(img) {
   throbber.ctx = throbber.getContext('2d');
   throbber.ctx.fillStyle = 'orange';
 
-  throbber.update = function(percent) {
+  throbber.update = function (percent) {
     throbber.ctx.fillRect(0, 0, throbberWidth * percent / 100, throbberHeight);
+
     if (percent === 100) {
       throbber.ctx.fillStyle = 'green';
     }
@@ -121,21 +170,23 @@ function createThrobber(img) {
   return throbber;
 }
 
-
 function createDropZone() {
-  const dropzone = document.getElementById("dropzone");
-  dropzone.ondragover = dropzone.ondragenter = function(event) {
-      event.stopPropagation();
-      event.preventDefault();
-  }
+  var dropzone = document.getElementById("dropzone");
 
-  dropzone.ondrop = function(event) {
-      event.stopPropagation();
-      event.preventDefault();
+  dropzone.ondragover = dropzone.ondragenter = function (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  };
 
-      const filesArray = event.dataTransfer.files;
-      for (let i=0; i<filesArray.length; i++) {
-          sendFile(filesArray[i]);
-      }
-  }
+  dropzone.ondrop = function (event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var filesArray = event.dataTransfer.files;
+
+    for (var i = 0; i < filesArray.length; i++) {
+      FileUploadService.sendFiles(filesArray[i]);
+    }
+  };
 }
+
+export default FileUploadService;
