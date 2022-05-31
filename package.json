@@ -1,8 +1,8 @@
 {
-  "name": "@ocdladefense/example-project",
+  "name": "@ocdladefense/file-upload",
   "version": "1.0.0",
   "scripts": {
-    "build": "babel assets/js/src -d assets/js/lib"
+    "build": "babel assets/js/src -d assets/js/build"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
@@ -14,7 +14,7 @@
     "webpack": "^5.53.0"
   },
   "dependencies": {
-    "@ocdladefense/view": "~2.0.0"
+    "@ocdladefense/view": "^2.1.0"
   },
   "type": "module"
 }
