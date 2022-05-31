@@ -1,11 +1,8 @@
-# Node Template
-Example module for working with JavaScript in NodeJS.  The module has a default build process that uses babel for transpilation, especially virtual nodes.
+# file-upload
+Component and controllers for uploading files.
 
 
-# Change Log
-
-
-## 1.0.1
+## 1.0
 Expose "npm run build" command to transpile JSX to JavaScript.
 
 
